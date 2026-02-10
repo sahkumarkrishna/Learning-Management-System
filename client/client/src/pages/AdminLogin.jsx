@@ -28,7 +28,7 @@ const AdminLogin = () => {
         navigate("/admin/dashboard");
       } else {
         toast.error("Access denied. Instructors only.");
-        navigate("/");
+        navigate("/admin/dashboard");
       }
     }
     if (loginError) {
