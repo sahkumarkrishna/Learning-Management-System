@@ -79,6 +79,19 @@
 
 ## Troubleshooting
 
+### Server Crashes (500 Error)
+1. **Check Vercel Logs**: Go to your project → Deployments → Click on deployment → View Function Logs
+2. **Common Issues**:
+   - Missing environment variables
+   - MongoDB connection string incorrect
+   - Node version mismatch (use Node 18.x)
+3. **Fix Steps**:
+   ```bash
+   # Redeploy with correct settings
+   cd server
+   vercel --prod
+   ```
+
 - If CORS errors occur, check FRONTEND_URL in server environment
 - If database connection fails, check MongoDB Atlas network access
 - If file uploads fail, verify Cloudinary credentials
