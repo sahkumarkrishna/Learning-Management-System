@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, User, Mail, Shield, Camera, BookOpen } from "lucide-react";
 import Course from "./Course";
 import {
   useLoadUserQuery,
@@ -19,7 +19,6 @@ import {
 } from "@/Features/api/authApi";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
 
 const Profile = () => {
   const [name, setName] = useState("");
@@ -42,7 +41,6 @@ const Profile = () => {
       refetch();
       toast.success("Profile updated successfully!");
     }
-
     if (error) {
       toast.error(
         error?.message || "Failed to update profile. Please try again."
@@ -51,7 +49,11 @@ const Profile = () => {
   }, [isSuccess, error]);
 
   if (isLoading) {
-    return <h1>Profile Loading...</h1>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
   }
 
   if (!data || !data.user) {
@@ -65,7 +67,6 @@ const Profile = () => {
       const formData = new FormData();
       formData.append("name", name || user.name);
       if (profilePhoto) formData.append("profilePhoto", profilePhoto);
-
       await updateUser(formData).unwrap();
     } catch (err) {
       console.error("Error updating profile:", err);
@@ -73,118 +74,137 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 my-10">
-      <h1 className="font-bold text-2xl text-center md:text-left">Profile</h1>
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-8 my-5">
-        <div className="flex flex-col items-center">
-          <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4">
-            <AvatarImage
-              src={user?.photoUrl || "https://github.com/shadcn.png"}
-              alt="User Avatar"
-            />
-            <AvatarFallback>
-              {user?.name?.[0]?.toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-        <div>
-          <div className="mb-2 ">
-            <h2 className="font-semibold text-gray-900">
-              Name:
-              <span className="font-normal text-gray-700 ml-2">
-                {user?.name || "N/A"}
-              </span>
-            </h2>
-          </div>
-          <div className="mb-2">
-            <h2 className="font-semibold text-gray-900">
-              Email:
-              <span className="font-normal text-gray-700 ml-2">
-                {user?.email || "N/A"}
-              </span>
-            </h2>
-          </div>
-          <div className="mb-2">
-            <h2 className="font-semibold text-gray-900">
-              Role:
-              <span className="font-normal text-gray-700 ml-2">
-                {user?.role?.toUpperCase() || "N/A"}
-              </span>
-            </h2>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="bg-black mt-2 text-white"
-                variant="outline"
-                size="sm"
-              >
-                Edit Profile
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-white">
-              <DialogHeader>
-                <DialogTitle>Edit Profile</DialogTitle>
-                <DialogDescription>
-                  Make changes to your profile here. Click save when you're
-                  done.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Name"
-                    className="col-span-3"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="h-32 bg-gradient-to-r from-blue-600 to-purple-600" />
+          <div className="px-6 sm:px-10 pb-10">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 -mt-16">
+              <div className="relative group">
+                <Avatar className="w-32 h-32 border-4 border-white shadow-xl">
+                  <AvatarImage
+                    src={user?.photoUrl || "https://github.com/shadcn.png"}
+                    alt="User Avatar"
                   />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="photo" className="text-right">
-                    Profile Photo
-                  </Label>
-                  <Input
-                    onChange={onChangeHandler}
-                    id="photo"
-                    type="file"
-                    accept="image/*"
-                    className="col-span-3"
-                  />
-                </div>
+                  <AvatarFallback className="text-3xl bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                    {user?.name?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
               </div>
-              <DialogFooter>
-                <Button
-                  disabled={updateUserIsLoading}
-                  onClick={updateUserHandler}
-                >
-                  {updateUserIsLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Please wait
-                    </>
-                  ) : (
-                    "Save Changes"
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              <div className="flex-1 text-center sm:text-left">
+                <h1 className="text-3xl font-bold text-gray-900">{user?.name || "N/A"}</h1>
+                <p className="text-gray-600 mt-1">{user?.email || "N/A"}</p>
+              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                    <Camera className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px] bg-white">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl">Edit Profile</DialogTitle>
+                    <DialogDescription>
+                      Update your profile information and photo
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-6 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Name
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder={user?.name || "Enter your name"}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="photo" className="text-sm font-medium flex items-center gap-2">
+                        <Camera className="w-4 h-4" />
+                        Profile Photo
+                      </Label>
+                      <Input
+                        onChange={onChangeHandler}
+                        id="photo"
+                        type="file"
+                        accept="image/*"
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      disabled={updateUserIsLoading}
+                      onClick={updateUserHandler}
+                      className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    >
+                      {updateUserIsLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save Changes"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <User className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-semibold text-gray-700">Name</h3>
+                </div>
+                <p className="text-gray-900 font-medium">{user?.name || "N/A"}</p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <Mail className="w-5 h-5 text-purple-600" />
+                  <h3 className="font-semibold text-gray-700">Email</h3>
+                </div>
+                <p className="text-gray-900 font-medium truncate">{user?.email || "N/A"}</p>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <Shield className="w-5 h-5 text-green-600" />
+                  <h3 className="font-semibold text-gray-700">Role</h3>
+                </div>
+                <p className="text-gray-900 font-medium uppercase">{user?.role || "N/A"}</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div>
-        <h1 className="font-medium text-lg">Courses you enrolled in</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 m-5">
+
+        <div className="mt-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Enrolled Courses</h2>
+          </div>
           {user?.enrolledCourse?.length === 0 ? (
-            <h1>You haven't enrolled in any courses yet.</h1>
+            <div className="bg-white rounded-xl p-12 text-center shadow-md">
+              <div className="p-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                <BookOpen className="w-10 h-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">No courses enrolled</h3>
+              <p className="text-gray-600">Start your learning journey today!</p>
+            </div>
           ) : (
-            user?.enrolledCourse?.map((course) => (
-              <Course key={course._id} course={course} />
-            ))
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {user?.enrolledCourse?.map((course) => (
+                <Course key={course._id} course={course} />
+              ))}
+            </div>
           )}
         </div>
       </div>

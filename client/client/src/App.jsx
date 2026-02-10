@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import HeroSection from "./pages/students/HeroSection";
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
 import Courses from "./pages/students/Courses";
 import MyLearning from "./pages/students/MyLearning";
 import Profile from "./pages/students/Profile";
@@ -14,14 +15,17 @@ import EditLecture from "./pages/admin/lecture/EditLecture";
 import CourseDetails from "./pages/students/CourseDetails";
 import CourseProgress from "./pages/students/CourseProgress";
 import SearchPage from "./pages/students/SearchPage";
+import About from "./pages/students/About";
+import Features from "./pages/students/Features";
+import StatsSection from "./pages/students/StatsSection";
+import Feedback from "./pages/students/Feedback";
+import Footer from "./pages/students/Footer";
 import {
   AdminRoute,
   AuthenticatedUser,
   ProtectedRoute,
 } from "./components/ui/ProtectedRoutes";
 import CoursesTable from "./pages/admin/course/CorsesTable";
-// import PurchaseCourseProtectedRoute from "./components/PurchaseCourseProtectedRoute";
-
 import NotFound from "./NotFound";
 import { ThemeProvider } from "./components/ThemeProvider";
 
@@ -36,6 +40,11 @@ const appRouter = createBrowserRouter([
           <>
             <HeroSection />
             <Courses />
+            <About />
+            <Features />
+            <StatsSection />
+            <Feedback />
+            <Footer />
           </>
         ),
       },
@@ -45,6 +54,15 @@ const appRouter = createBrowserRouter([
         element: (
           <AuthenticatedUser>
             <Login />
+          </AuthenticatedUser>
+        ),
+      },
+
+      {
+        path: "admin-login",
+        element: (
+          <AuthenticatedUser>
+            <AdminLogin />
           </AuthenticatedUser>
         ),
       },

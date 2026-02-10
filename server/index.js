@@ -1,5 +1,3 @@
-
-
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -11,33 +9,28 @@ import mediaRoute from "./routes/media.router.js";
 import purchaseRoute from "./routes/purchaseCourse.route.js";
 import courseProgressRoute from "./routes/courseProgress.route.js";
 
-// Import other routes as needed
-
 dotenv.config();
-
-// Call database connection here
+console.log("Loaded SECRET_KEY:", `"${process.env.SECRET_KEY}"`); // Debug line
 connectDB();
-const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Default middleware
+const app = express();
+const PORT = process.env.PORT || 5000;
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, // Adjust as needed
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
 
 // API routes
-// //api
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/course", courseRoute);
 app.use("/api/v1/media", mediaRoute);
 app.use("/api/v1/purchase", purchaseRoute);
 app.use("/api/v1/progress", courseProgressRoute);
-
 
 app.get("/home", (_, res) => {
   res.status(200).json({

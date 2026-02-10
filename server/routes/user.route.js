@@ -6,11 +6,7 @@ import {
   logout,
   updateProfile,
   getUserProfile,
-  // sendForgotPasswordCode,
-  // verifyForgotPasswordCode,
-  // getUserProfile,
-  // setNewPassword,
-  GoogleLogin,
+
 
   
 } from "../controllers/user.controller.js"; // Ensure the function is exported from the controller
@@ -22,7 +18,7 @@ const router = express.Router();
 // User registration & login
 router.post("/register", register);
 router.post("/login", login);
-router.post("/google-login", GoogleLogin);
+
 
 // Logout
 router.get("/logout", logout);

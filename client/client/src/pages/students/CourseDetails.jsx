@@ -1,126 +1,24 @@
-// import { Button } from "@/components/ui/button";
-// import BuyCourseButton from "@/components/ui/BuyCourseButton";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
-// import { Separator } from "@/components/ui/separator";
-// import { BadgeInfo, Lock, PlayCircle } from "lucide-react";
-// import { useParams } from "react-router-dom";
-// // import ReactPlayer from "react-player";
-
-// const CourseDetails = () => {
-//   const params = useParams();
-//   const courseId = params.courseId;
-//   const purchasedCourse = false;
-//   return (
-//     <div className="mt-20 space-y-5">
-//       <div className="bg-[#2D2F31] text-white">
-//         <div className="max-w-7xl mx-auto py-8 px-4 md:px-8 flex flex-col gap-2">
-//           <h1 className="font-bold text-2xl md:text-3xl">course Title</h1>
-//           <p className="text-base md:text-lg">Course Sub-title</p>
-//           <p>
-//             Created By{" "}
-//             <span className="text-[#C0C4FC] underline italic">
-//               krishna kumaar
-//             </span>
-//           </p>
-//           <div className="flex items-center gap-2 text-sm">
-//             <BadgeInfo size={16} />
-//             <p>Last updated 11-11-2005</p>
-//           </div>
-//           <p>Students enrolled: 10</p>
-//         </div>
-//       </div>
-
-//       <div className="max-w-7xl mx-auto my-5 px-4 md:px-8 flex flex-col lg:flex-row justify-between gap-10">
-//         <div className="w-full lg:w-1/2 space-y-5">
-//           <h1 className="font-bold text-xl md:text-2xl">Description</h1>
-//           <p className="text-sm">
-//             Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias amet
-//             maxime corrupti error! Consectetur facere vero soluta quisquam
-//             quidem blanditiis consequatur, ratione minima placeat nulla, totam
-//             laboriosam, ullam et aperiam!
-//           </p>
-//           <Card>
-//             <CardHeader>
-//               <CardTitle>Course Content</CardTitle>
-//               <CardDescription>4 lectures</CardDescription>
-//             </CardHeader>
-//             <CardContent className="space-y-3">
-//               {[1, 2, 3].map((lecture, idx) => (
-//                 <div key={idx} className="flex items-center gap-3 text-sm">
-//                   <span>
-//                     {true ? <PlayCircle size={14} /> : <Lock size={14} />}
-//                   </span>
-//                   <p>lectureTitle</p>
-//                 </div>
-//               ))}
-//             </CardContent>
-//           </Card>
-//         </div>
-//         <div className="w-full lg:w-1/3">
-//           <Card>
-//             <CardContent className="p-4 flex flex-col">
-//               <div className="w-full aspect-video mb-4">
-//                 <ReactPlayer
-//                   width="100%"
-//                   height={"100%"}
-//                   url={course.lectures[0].videoUrl}
-//                   controls={true}
-//                 />
-//                 video aayega
-//               </div>
-//               <h1>Lecture title</h1>
-//               <Separator className="my-2" />
-//               <h1 className="text-lg md:text-xl font-semibold">Course Price</h1>
-//             </CardContent>
-//             <CardFooter className="flex justify-center p-4">
-//               {purchasedCourse ? (
-//                 <Button className="w-full bg-black text-white">
-//                   Continue Course
-//                 </Button>
-//               ) : (
-//                 <BuyCourseButton courseId={courseId} />
-//               )}
-//             </CardFooter>
-//           </Card>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default CourseDetails;
-
 import { Button } from "@/components/ui/button";
 import BuyCourseButton from "@/components/ui/BuyCourseButton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useGetCourseDetailWithStatusQuery } from "@/Features/api/purchaseApi";
-import { BadgeInfo, Lock, PlayCircle } from "lucide-react";
-
+import { BadgeInfo, Lock, PlayCircle, Clock, Users, Award, CheckCircle2 } from "lucide-react";
 import ReactPlayer from "react-player";
 import { useNavigate, useParams } from "react-router-dom";
 
 const CourseDetail = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { data, isLoading, isError } =
-    useGetCourseDetailWithStatusQuery(courseId);
+  const { data, isLoading, isError } = useGetCourseDetailWithStatusQuery(courseId);
 
-  if (isLoading) return <h1>Loading...</h1>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
   if (isError) return <h1>Failed to load course details</h1>;
 
   const { course, purchased } = data;
@@ -132,85 +30,149 @@ const CourseDetail = () => {
   };
 
   return (
-    <div className=" space-y-5">
-      <div className="bg-[#2D2F31] text-white">
-        <div className="max-w-7xl mx-auto py-8 px-4 md:px-8 flex flex-col gap-2">
-          <h1 className="font-bold text-2xl md:text-3xl">
-            {course?.courseTitle || "No Title Available"}
-          </h1>
-          <p className="text-base md:text-lg">{course?.creator?.name}</p>
-          <p>
-            Created By{" "}
-            <span className="text-[#C0C4FC] underline italic">
-              {course?.creator?.name }
-            </span>
-          </p>
-          <div className="flex items-center gap-2 text-sm">
-            <BadgeInfo size={16} />
-            <p>Last updated {course?.createdAt?.split("T")[0]}</p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                {course?.courseTitle || "No Title Available"}
+              </h1>
+              <p className="text-lg text-white/90 mb-6">{course?.subTitle}</p>
+              <div className="flex flex-wrap items-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <span className="text-lg font-bold">{course?.creator?.name?.[0]}</span>
+                  </div>
+                  <div>
+                    <p className="text-white/70 text-xs">Created by</p>
+                    <p className="font-semibold">{course?.creator?.name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BadgeInfo className="w-5 h-5" />
+                  <span>Updated {course?.createdAt?.split("T")[0]}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  <span>{course?.enrolledStudents?.length} students</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <p>Students enrolled: {course?.enrolledStudents?.length}</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto my-5 px-4 md:px-8 flex flex-col lg:flex-row justify-between gap-10">
-        <div className="w-full lg:w-1/2 space-y-5">
-          <h1 className="font-bold text-xl md:text-2xl">Description</h1>
-          <p
-            className="text-sm"
-            dangerouslySetInnerHTML={{ __html: course?.description || "" }}
-          />
-          <Card>
-            <CardHeader>
-              <CardTitle>Course Content</CardTitle>
-              <CardDescription>
-                {course?.lectures?.length} lectures
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {course?.lectures?.map((lecture, idx) => (
-                <div key={idx} className="flex items-center gap-3 text-sm">
-                  <span>
-                    {purchased ? <PlayCircle size={14} /> : <Lock size={14} />}
-                  </span>
-                  <p>{lecture?.lectureTitle || "Untitled Lecture"}</p>
-                </div>
-              )) || <p>No lectures available.</p>
-              }
-            </CardContent>
-          </Card>
-        </div>
-        <div className="w-full lg:w-1/3">
-          <Card>
-            <CardContent className="p-4 flex flex-col">
-              <div className="w-full aspect-video mb-4">
-                <div className="w-full aspect-video mb-4">
-                  {course?.lectures?.[0]?.videoUrl ? (
-                    <ReactPlayer
-                      width="100%"
-                      height="100%"
-                      url={course.lectures[0].videoUrl}
-                      controls={true}
-                    />
-                  ) : (
-                    <p className="text-center">No preview available</p>
-                  )}
-                </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <Award className="w-6 h-6 text-blue-600" />
+                Course Description
+              </h2>
+              <div
+                className="text-gray-700 prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: course?.description || "No description available" }}
+              />
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <PlayCircle className="w-6 h-6 text-blue-600" />
+                  Course Content
+                </h2>
+                <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                  {course?.lectures?.length} lectures
+                </span>
               </div>
-              <h1>{course?.lectures?.[0]?.lectureTitle}</h1>
-              <Separator className="my-2" />
-              <h1 className="text-lg md:text-xl font-semibold">Course Price</h1>
-            </CardContent>
-            <CardFooter className="flex justify-center p-4">
-              {purchased ? (
-                <Button className="w-full" onClick={handleContinueCourse}>
-                  Continue Course
-                </Button>
-              ) : (
-                <BuyCourseButton courseId={courseId} />
-              )}
-            </CardFooter>
-          </Card>
+              <div className="space-y-3">
+                {course?.lectures?.map((lecture, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      purchased ? "bg-green-100" : "bg-gray-100"
+                    }`}>
+                      {purchased ? (
+                        <PlayCircle className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <Lock className="w-5 h-5 text-gray-400" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">
+                        {lecture?.lectureTitle || "Untitled Lecture"}
+                      </p>
+                    </div>
+                    <span className="text-sm text-gray-500">Lecture {idx + 1}</span>
+                  </div>
+                )) || <p className="text-gray-500">No lectures available.</p>}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <Card className="shadow-xl border-0 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="aspect-video bg-gray-900">
+                    {course?.lectures?.[0]?.videoUrl ? (
+                      <ReactPlayer
+                        width="100%"
+                        height="100%"
+                        url={course.lectures[0].videoUrl}
+                        controls={true}
+                        light={course?.courseThumbnail}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <p className="text-white">No preview available</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Course Price</p>
+                      <p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        ₹{course?.coursePrice}
+                      </p>
+                    </div>
+                    <Separator />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <Clock className="w-5 h-5" />
+                        <span>Lifetime access</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <Award className="w-5 h-5" />
+                        <span>Certificate of completion</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span>{course?.lectures?.length} lectures</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="p-6 pt-0">
+                  {purchased ? (
+                    <Button
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-6 text-lg"
+                      onClick={handleContinueCourse}
+                    >
+                      <PlayCircle className="w-5 h-5 mr-2" />
+                      Continue Learning
+                    </Button>
+                  ) : (
+                    <BuyCourseButton courseId={courseId} />
+                  )}
+                </CardFooter>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

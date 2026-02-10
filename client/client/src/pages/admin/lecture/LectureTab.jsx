@@ -1,23 +1,12 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
-import {
-  useEditLectureMutation,
-  
-  useGetLectureByIdQuery,
-  useRemoveLectureMutation,
-} from "@/Features/api/courseApi";
+import { useEditLectureMutation, useGetLectureByIdQuery, useRemoveLectureMutation } from "@/Features/api/courseApi";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, Video, Trash2, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -33,24 +22,18 @@ const LectureTab = () => {
   const [btnDisable, setBtnDisable] = useState(true);
 
   const { courseId, lectureId } = useParams();
-  const [editLecture, { isLoading, error, isSuccess, data }] =
-    useEditLectureMutation();
-
-  const [
-    removeLecture,
-    { data: removeData, isLoading: removeLoading, isSuccess: removeSuccess },
-  ] = useRemoveLectureMutation();
-
+  const [editLecture, { isLoading, isSuccess, data }] = useEditLectureMutation();
+  const [removeLecture, { data: removeData, isLoading: removeLoading, isSuccess: removeSuccess }] = useRemoveLectureMutation();
   const { data: lectureData } = useGetLectureByIdQuery(lectureId);
   const lecture = lectureData?.lecture;
 
   useEffect(() => {
     if (lecture) {
-      setLectureTitle(lecture.lectureTitle); // ✅ Corrected property name
+      setLectureTitle(lecture.lectureTitle);
       setIsFree(lecture.isPreviewFree);
       setUploadVideoInfo(lecture.videoInfo);
     }
-  }, [lecture]); // ✅ Added dependency array
+  }, [lecture]);
 
   const fileChangeHandle = async (e) => {
     const file = e.target.files[0];
@@ -75,7 +58,6 @@ const LectureTab = () => {
           toast.success(res.data.message);
         }
       } catch (error) {
-        console.error("Video upload failed:", error);
         toast.error("Video upload failed");
       } finally {
         setMediaProgress(false);
@@ -123,77 +105,110 @@ const LectureTab = () => {
   }, [removeSuccess, removeData]);
 
   return (
-    <Card>
-      <CardHeader className="flex justify-between">
-        <div>
-          <CardTitle>Edit Lecture</CardTitle>
-          <CardDescription>
-            Make changes and click save when done.
-          </CardDescription>
-        </div>
-        <div className="flex items-center gap-2">
+    <Card className="shadow-lg border-0">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-2xl">Edit Lecture Details</CardTitle>
+            <CardDescription className="mt-2">Update your lecture content and settings</CardDescription>
+          </div>
           <Button
             disabled={removeLoading}
-            className="bg-red-800 text-white"
             variant="destructive"
+            className="gap-2"
             onClick={removeLectureHandler}
           >
             {removeLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Removing...
               </>
             ) : (
-              "Remove Lectures"
+              <>
+                <Trash2 className="w-4 h-4" />
+                Remove Lecture
+              </>
             )}
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <div>
-          <Label>Title</Label>
+      <CardContent className="p-6 space-y-6">
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold text-gray-700">Lecture Title</Label>
           <Input
             type="text"
-            placeholder="Ex. Introduction to JavaScript"
+            placeholder="e.g., Introduction to JavaScript"
             value={lectureTitle}
             onChange={(e) => setLectureTitle(e.target.value)}
           />
         </div>
-        <div className="my-5">
-          <Label>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold text-gray-700">
             Video <span className="text-red-500">*</span>
           </Label>
-          <Input
-            type="file"
-            accept="video/*"
-            onChange={fileChangeHandle}
-            placeholder="Upload video"
-            className="w-full"
-          />
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-400 transition-colors">
+            <div className="flex flex-col items-center justify-center gap-3">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Upload className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700">Upload lecture video</p>
+                <p className="text-xs text-gray-500 mt-1">MP4, MOV, or AVI (max 500MB)</p>
+              </div>
+              <Input
+                type="file"
+                accept="video/*"
+                onChange={fileChangeHandle}
+                className="max-w-xs"
+              />
+            </div>
+          </div>
+          {uploadVideoInfo && (
+            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-3 rounded-lg">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Video uploaded successfully</span>
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center space-x-2 my-5">
-          <Switch
-            checked={isFree}
-            onCheckedChange={setIsFree}
-            id="airplane-mode"
-          />
-          <Label htmlFor="airplane-mode">Is this video FREE</Label>
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-3">
+            <Video className="w-5 h-5 text-gray-600" />
+            <div>
+              <Label htmlFor="free-preview" className="text-sm font-semibold text-gray-700 cursor-pointer">
+                Free Preview
+              </Label>
+              <p className="text-xs text-gray-500">Allow students to preview this lecture</p>
+            </div>
+          </div>
+          <Switch checked={isFree} onCheckedChange={setIsFree} id="free-preview" />
         </div>
 
         {mediaProgress && (
-          <div className="my-4">
-            <Progress value={uploadProgress} />
-            <p>{uploadProgress}% uploaded</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">Uploading...</span>
+              <span className="font-semibold text-blue-600">{uploadProgress}%</span>
+            </div>
+            <Progress value={uploadProgress} className="h-2" />
           </div>
         )}
 
-        <div className="mt-4">
+        <div className="pt-4">
           <Button
             disabled={btnDisable || isLoading}
             onClick={editLectureHandler}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
           >
-            {isLoading ? "Updating..." : "Update Lecture"}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Updating...
+              </>
+            ) : (
+              "Update Lecture"
+            )}
           </Button>
         </div>
       </CardContent>

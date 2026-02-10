@@ -6,12 +6,20 @@ import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 
 // Register new user
 export const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({
       success: false,
       message: "Name, email, and password are required.",
+    });
+  }
+
+  // Restrict instructor registration to admin email only
+  if (role === "instructor" && email !== process.env.ADMIN_EMAIL) {
+    return res.status(403).json({
+      success: false,
+      message: "Instructor registration is restricted.",
     });
   }
 
@@ -30,6 +38,7 @@ export const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role: role || "student",
       isVerified: false,
     });
 
@@ -51,7 +60,7 @@ export const register = async (req, res) => {
 
 // Login user
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({
@@ -61,6 +70,33 @@ export const login = async (req, res) => {
   }
 
   try {
+    // Check if logging in as instructor with admin credentials
+    if (role === "instructor") {
+      if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+        // Find or create admin user
+        let adminUser = await User.findOne({ email: process.env.ADMIN_EMAIL });
+        
+        if (!adminUser) {
+          const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 12);
+          adminUser = await User.create({
+            name: "Admin",
+            email: process.env.ADMIN_EMAIL,
+            password: hashedPassword,
+            role: "instructor",
+            isVerified: true,
+          });
+        }
+        
+        return generateToken(res, adminUser, `Welcome back Admin`);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid admin credentials.",
+        });
+      }
+    }
+
+    // Regular student login
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
@@ -88,62 +124,6 @@ export const login = async (req, res) => {
   }
 };
 
-// Google Login
-// controllers/user.controller.js
-
-
-// Google Login
-export const GoogleLogin = async (req, res) => {
-  try {
-    const { name, email, avatar } = req.body;
-
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      const randomPassword = Math.random().toString(36).slice(-8);
-      const hashedPassword = await bcrypt.hash(randomPassword, 10);
-
-      user = new User({
-        name,
-        email,
-        avatar,
-        password: hashedPassword,
-      });
-
-      await user.save();
-    }
-
-    // ✅ Sign JWT using secret from .env
-    const token = jwt.sign(
-      {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-      },
-      process.env.JWT_SECRET, // <-- this must be defined in your .env
-      { expiresIn: "1d" }
-    );
-
-    res.status(200).json({
-      success: true,
-      message: "Google login successful",
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-      },
-    });
-  } catch (error) {
-    console.error("Google Login Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error. Please try again.",
-    });
-  }
-};
 
 
 export const updateProfile = async (req, res) => {
@@ -190,14 +170,17 @@ export const updateProfile = async (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
-    const userId = req.id; // Extract user ID from authentication middleware
+    const userId = req.id;
 
-    // Find user by ID
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId)
+      .select("-password")
+      .populate("enrolledCourses");
+      
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "User not found" 
+      });
     }
 
     return res.status(200).json({
@@ -206,9 +189,10 @@ export const getUserProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Get Profile Error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to retrieve profile" });
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to retrieve profile" 
+    });
   }
 };
 

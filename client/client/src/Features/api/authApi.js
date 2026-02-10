@@ -106,6 +106,19 @@ export const authApi = createApi({
         method: "POST",
         body: inputData,
       }),
+      async onQueryStarted(_, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data?.token) {
+            localStorage.setItem("token", data.token);
+          }
+          if (data?.user) {
+            dispatch(userLoggedIn({ user: data.user }));
+          }
+        } catch (error) {
+          console.error("Registration error:", error);
+        }
+      },
     }),
 
     loginUser: builder.mutation({
@@ -117,6 +130,9 @@ export const authApi = createApi({
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
+          if (data?.token) {
+            localStorage.setItem("token", data.token);
+          }
           dispatch(userLoggedIn({ user: data.user }));
         } catch (error) {
           console.error("Login error:", error);
@@ -126,13 +142,16 @@ export const authApi = createApi({
 
     googleUser: builder.mutation({
       query: (inputData) => ({
-        url: "google-login", // Ensure this matches your backend endpoint
+        url: "google-login",
         method: "POST",
         body: inputData,
       }),
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
+          if (data?.token) {
+            localStorage.setItem("token", data.token);
+          }
           dispatch(userLoggedIn({ user: data.user }));
         } catch (error) {
           console.error("Google login error:", error);
@@ -148,6 +167,7 @@ export const authApi = createApi({
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           await queryFulfilled;
+          localStorage.removeItem("token");
           dispatch(userLoggedOut());
         } catch (error) {
           console.error("Logout error:", error);

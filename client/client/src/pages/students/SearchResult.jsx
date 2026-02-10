@@ -1,32 +1,44 @@
 import { Badge } from "@/components/ui/badge";
-
 import { Link } from "react-router-dom";
+import { Clock, User } from "lucide-react";
 
 const SearchResult = ({ course }) => {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-300 py-4 gap-4">
-      <Link
-        to={`/course-details/${course._id}`}
-        className="flex flex-col md:flex-row gap-4 w-full md:w-auto"
-      >
-        <img
-          src={course.courseThumbnail}
-          alt="course-thumbnial"
-          className="h-32 w-full md:w-56 object-cover rounded"
-        />
-        <div className="flex flex-col gap-2">
-          <h1 className="font-bold text-lg md:text-xl">{course.courseTitle}</h1>
-          <p className="text-sm text-gray-600">{course.subTitle}</p>
-          <p className="text-sm text-gray-700">
-            Intructor: <span className="font-bold">{course.creator?.name}</span>{" "}
-          </p>
-          <Badge className="w-fit mt-2 md:mt-0">{course.courseLevel}</Badge>
+    <Link to={`/course-details/${course._id}`}>
+      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-72 h-48 md:h-auto overflow-hidden">
+            <img
+              src={course.courseThumbnail}
+              alt={course.courseTitle}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <div className="flex-1 p-6">
+            <div className="flex flex-col h-full justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                  {course.courseTitle}
+                </h2>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.subTitle}</p>
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">{course.creator?.name}</span>
+                </div>
+                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+                  {course.courseLevel}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  ₹{course.coursePrice}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-      </Link>
-      <div className="mt-4 md:mt-0 md:text-right w-full md:w-auto">
-        <h1 className="font-bold text-lg md:text-xl">₹{course.coursePrice}</h1>
       </div>
-    </div>
+    </Link>
   );
 };
 

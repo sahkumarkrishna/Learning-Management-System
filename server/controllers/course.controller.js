@@ -11,9 +11,11 @@ export const createCourse = async (req, res) => {
   try {
     const { courseTitle, category } = req.body;
     if (!courseTitle || !category) {
-      return res
-        .status(400)
-        .json({ message: "Course title and category are required." });
+      return res.status(400).json({ message: "Course title and category are required." });
+    }
+
+    if (!req.id) {
+      return res.status(401).json({ message: "User not authenticated" });
     }
 
     const course = await Course.create({
@@ -22,14 +24,13 @@ export const createCourse = async (req, res) => {
       creator: req.id,
     });
 
-    return res
-      .status(201)
-      .json({ course, message: "Course created successfully." });
+    return res.status(201).json({ course, message: "Course created successfully." });
   } catch (error) {
-    console.error(error);
+    console.error("createCourse error:", error);
     return res.status(500).json({ message: "Failed to create course." });
   }
 };
+
 
 export const getPublishedCourse = async (_, res) => {
   try {
@@ -174,7 +175,39 @@ export const getCourseById = async (req, res) => {
   }
 };
 
-// export const removeCourse
+// 📌 DELETE COURSE
+export const removeCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findById(courseId).populate("lectures");
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found!" });
+    }
+
+    // Delete course thumbnail from cloudinary
+    if (course.courseThumbnail) {
+      const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
+      await deleteMediaFromCloudinary(publicId);
+    }
+
+    // Delete all lectures and their videos
+    for (const lecture of course.lectures) {
+      if (lecture.publicId) {
+        await deleteVideoFromCloudinary(lecture.publicId);
+      }
+      await Lecture.findByIdAndDelete(lecture._id);
+    }
+
+    // Delete the course
+    await Course.findByIdAndDelete(courseId);
+
+    return res.status(200).json({ message: "Course deleted successfully." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to delete course." });
+  }
+};
 
 // 📌 CREATE LECTURE
 export const createLecture = async (req, res) => {
